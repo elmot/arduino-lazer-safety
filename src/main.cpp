@@ -2,14 +2,14 @@
 
 #define RELAY_PIN A0
 
-#define FLOW_SENSOR_PIN A6
+#define FLOW_SENSOR_PIN 2
 
-#define COVER_SW_PIN    13
+#define COVER_SW_PIN    3
 
 #define SPK_PIN_A       4
 #define SPK_PIN_B       5
 
-#define FLOW_THRESHOLD_MS 100
+#define FLOW_THRESHOLD_MS 500
 
 uint8_t flowPhase;
 int flowPhaseCounterMs = 0;
@@ -39,6 +39,7 @@ void setup() {
     init_relay();
     init_sensors();
     init_sound();
+    pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void sound_loop(bool alarm) {
@@ -55,9 +56,25 @@ void sound_loop(bool alarm) {
 }
 
 void loop() {
-    bool alarm = true;
-    alarm = (digitalRead(COVER_SW_PIN) == LOW);
+    bool alarm = digitalRead(COVER_SW_PIN) == HIGH;
+    uint8_t newFlowPhase = digitalRead(FLOW_SENSOR_PIN);
+    if (flowPhase == newFlowPhase)
+    {
+        if (flowPhaseCounterMs > FLOW_THRESHOLD_MS)
+        {
+            alarm = true;
+        } else
+        {
+            flowPhaseCounterMs ++;
+        }
+    } else
+    {
+        flowPhase = newFlowPhase;
+        flowPhaseCounterMs = 0;
+    }
+
     digitalWrite(RELAY_PIN, alarm ? LOW : HIGH);
-    // sound_loop(alarm);
+    digitalWrite(LED_BUILTIN, alarm ? HIGH : LOW);
+    sound_loop(alarm);
     delay(1);
 }

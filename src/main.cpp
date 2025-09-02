@@ -74,7 +74,8 @@ void loop() {
     }
 
     digitalWrite(RELAY_PIN, alarm ? LOW : HIGH);
-    digitalWrite(LED_BUILTIN, alarm ? HIGH : LOW);
+    // digitalWrite(LED_BUILTIN, alarm ? HIGH : LOW);
+    digitalWrite(LED_BUILTIN, flowPhase ? HIGH : LOW);
     sound_loop(alarm);
     delay(1);
 }
